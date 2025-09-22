@@ -10,6 +10,9 @@ import joblib
 import tensorflow as tf
 from tensorflow import keras
 
+# Debugging
+st.caption(f"TF: {tf.__version__} | NumPy: {np.__version__}")
+
 # Page config
 st.set_page_config(page_title="Welcome to OncoData", layout="wide")
 
