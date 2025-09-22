@@ -202,7 +202,6 @@ else:
         unsafe_allow_html=True
     )
 
-
 #  Router 
 def show_home():
     st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -239,7 +238,6 @@ def show_classifier():
     if not uploaded_file:
         st.info("Please upload a medical image to run the classifier.")
         return
-
     # Ensure model files exist
     if not os.path.isfile(MODEL_PATH):
         st.error(f"Model not found at {MODEL_PATH}")
@@ -251,11 +249,9 @@ def show_classifier():
     # Load, preprocess, predict
     model   = load_model(MODEL_PATH)
     classes = load_classes(LABELS_PATH)
-
     image = Image.open(uploaded_file).convert("RGB").resize(IMG_SIZE)
     x = (np.array(image).astype("float32") / 255.0)[None, ...]
     prob = model.predict(x, verbose=0)[0]
-
     idx         = int(prob.argmax())
     class_name  = classes[idx]
     nice_name   = pretty_label(class_name)     
@@ -264,14 +260,11 @@ def show_classifier():
 
     # Prediction card
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
-
     left, right = st.columns([1, 1.15])   # give the text a touch more room
-
     with left:
         st.markdown("<div class='preview'>", unsafe_allow_html=True)
         st.image(image, caption="Uploaded image", width=280)
         st.markdown("</div>", unsafe_allow_html=True)
-
     with right:
         # Title (left-aligned inside the right column)
         st.markdown("<h3 class='pred-title' style='text-align:left'>Prediction</h3>",
@@ -293,23 +286,19 @@ def show_classifier():
             """,
             unsafe_allow_html=True,
         )
-
         # Slim confidence bar (also inside right col)
         st.markdown(
             f"""<div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>""",
             unsafe_allow_html=True,
         )
-
+        # Short description
+        st.write(description)
         # Go Back button AFTER prediction (per your request)
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         if st.button("Go Back to Home"):
             st.session_state.page = "Home"
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
-
-        # Short description
-        st.write(description)
-
     # close the card after BOTH columns
     st.markdown("</div>", unsafe_allow_html=True)
 
