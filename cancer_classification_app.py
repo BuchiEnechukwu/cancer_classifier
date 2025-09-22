@@ -17,9 +17,6 @@ from tensorflow import keras
 # Page config
 st.set_page_config(page_title="Welcome to OncoData", layout="wide")
 
-# App title
-st.title("Welcome to OncoData")
-
 # inject CSS
 def inject_css():
     st.markdown("""
