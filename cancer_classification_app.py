@@ -300,12 +300,14 @@ def show_classifier():
             unsafe_allow_html=True,
         )
         # Go Back button (centered)
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        center = st.columns([1, 1, 1])[1]
+        with center:
             if st.button("Go Back to Home", use_container_width=True):
                 st.session_state.page = "Home"
                 st.rerun()
-                
+        st.markdown("</div>", unsafe_allow_html=True)
+
         # Short description
         st.write(description)
 
