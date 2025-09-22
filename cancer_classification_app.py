@@ -184,13 +184,13 @@ def show_classifier():
     # Header
     c_h1, c_h2, c_h3 = st.columns([1,2,1])
     with c_h2:
-        st.markdown("<h2 style='text-align:center'>Upload Medical Image</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#64748B'>Upload a medical image</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center'>Upload Medical Image</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#64748B'>Image should be medical screening</p>", unsafe_allow_html=True)
 
     # Uploader card
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
-        "Upload a medical image",
+        "Upload here",
         type=["jpg","jpeg","png","bmp","tif","tiff","webp"],
         accept_multiple_files=False,
         help="Limit 200MB per file • JPG, JPEG, PNG, BMP, TIF, TIFF, WEBP",
