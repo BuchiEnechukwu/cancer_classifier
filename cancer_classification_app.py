@@ -32,7 +32,7 @@ def inject_css():
       section[data-testid="stSidebar"] > div:first-child {
           max-width: 250px !important;  /* keep content compact */
       }
-
+      
       .sidebar-card {background:#ECF8F6; border:1px solid #D4EEE9; border-radius:14px; padding:12px; margin-bottom:12px;}
       .nav-btn > button {width:100%; border-radius:12px; font-weight:600;}
 
@@ -41,8 +41,18 @@ def inject_css():
              box-shadow:0 6px 18px rgba(16,24,40,.06); margin-bottom:1rem;}
 
       h1,h2,h3 {letter-spacing:.2px}
+
+      /* Slim down the uploader dropzone */
+      [data-testid="stFileUploaderDropzone"] {
+        padding: .75rem 1rem !important;
+      }
+      /*  Reduce inside spacing */
+      .stFileUploader > section {
+        padding: .25rem .5rem !important;
+      }
     </style>
     """, unsafe_allow_html=True)
+
 inject_css()
 
 
@@ -174,44 +184,40 @@ else:
 def show_home():
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("Choose Action")
-    dest = st.selectbox("Choose where to go:", ["Classifier", "Patient Info"])
+    dest = st.selectbox(
+        "Choose where to go:",
+        ["Classifier", "Patient Info"],
+        label_visibility="collapsed"   # hide default label bar
+    )
     if st.button("Go"):
         st.session_state.page = dest
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
 def show_classifier():
-    # Header
+    # Header (clean, no default label)
     c_h1, c_h2, c_h3 = st.columns([1,2,1])
     with c_h2:
-        st.markdown("<h3 style='text-align:center'>Upload Medical Image</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#64748B'>Image should be medical screening</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center'>📤 Upload Medical Image</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#64748B; margin-top:-6px'>Upload a medical image</p>", unsafe_allow_html=True)
 
     # Uploader card
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
-        "Upload here",
+        "Upload a medical image",
         type=["jpg","jpeg","png","bmp","tif","tiff","webp"],
         accept_multiple_files=False,
         help="Limit 200MB per file • JPG, JPEG, PNG, BMP, TIF, TIFF, WEBP",
-        label_visibility="collapsed" 
+        label_visibility="collapsed",           # hide Streamlit label bar
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<hr />", unsafe_allow_html=True)
-
+    # If nothing uploaded, stop here — prevents stray empty elements
     if not uploaded_file:
         st.info("Please upload a medical image to run the classifier.")
         return
 
-    # Back-to-home card
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    if st.button("Go Back to Home"):
-        st.session_state.page = "Home"
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Check model files
+    # Ensure model files exist
     if not os.path.isfile(MODEL_PATH):
         st.error(f"Model not found at {MODEL_PATH}")
         return
@@ -219,34 +225,41 @@ def show_classifier():
         st.error(f"Label encoder not found at {LABELS_PATH}")
         return
 
+    # Load, preprocess, predict
     model   = load_model(MODEL_PATH)
     classes = load_classes(LABELS_PATH)
 
-    # Preprocess
     image = Image.open(uploaded_file).convert("RGB").resize(IMG_SIZE)
-    x = (np.array(image).astype("float32") / 255.0)[None, ...]  # (1, H, W, 3)
-
-    # Inference
+    x = (np.array(image).astype("float32") / 255.0)[None, ...]
     prob = model.predict(x, verbose=0)[0]
-    idx  = int(prob.argmax())
-    class_name = classes[idx]
-    confidence = float(prob[idx])
+
+    idx         = int(prob.argmax())
+    class_name  = classes[idx]
+    nice_name   = pretty_label(class_name)             # ✅ human-friendly label
+    confidence  = float(prob[idx])
     description = LABEL_DESCRIPTIONS.get(class_name, "No description available.")
 
     # Prediction card
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     col1, col2 = st.columns([1,1])
     with col1:
-        st.image(image, caption="Uploaded image", use_container_width=True)
+        st.image(image, caption="Uploaded image", width=280)   # ✅ smaller image
     with col2:
         st.subheader("Prediction")
-        nice_name = pretty_label(class_name)  # <-- use pretty display name
         m1, m2 = st.columns(2)
         with m1: st.metric("Label", nice_name)
         with m2: st.metric("Confidence", f"{confidence*100:.2f}%")
         st.progress(confidence)
         st.write(description)
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # Go Back button AFTER prediction (per your request)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    if st.button("Go Back to Home"):
+        st.session_state.page = "Home"
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 def show_patient_info():
     st.markdown("<div class='card'><b>Patient Info</b><br/>Coming soon.</div>", unsafe_allow_html=True)
