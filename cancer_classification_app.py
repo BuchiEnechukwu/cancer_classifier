@@ -50,6 +50,29 @@ def inject_css():
       .stFileUploader > section {
         padding: .25rem .5rem !important;
       }
+                
+      /* Prediction section */
+      .pred-card { padding:1.25rem 1.5rem; border-radius:18px;
+                    background:#FFFFFF; border:1px solid #E6EEF0;
+                    box-shadow:0 6px 18px rgba(16,24,40,.06); }
+
+      .pred-title { font-size:1.75rem; font-weight:800; color:#111827; margin:0 0 .75rem 0; }
+
+      /* Metric chips */
+      .metric-wrap { display:flex; gap:14px; margin:.25rem 0 1rem 0; }
+      .metric {
+            flex:1; background:#F8FAFC; border:1px solid #E5E7EB;
+            border-radius:14px; padding:12px 14px;
+      }
+      .metric .k { font-size:.78rem; color:#64748B; text-transform:uppercase; letter-spacing:.05em; margin:0; }
+      .metric .v { font-size:2.15rem; font-weight:800; color:#0F172A; line-height:1.1; margin:.15rem 0 0 0; }
+
+      /* Slim progress bar */
+      .conf-bar { height:10px; background:#EEF2F7; border-radius:9999px; overflow:hidden; margin:.25rem 0 1rem 0; }
+      .conf-bar > span { display:block; height:100%; background:#2563EB; }  /* blue fill */
+
+      /* Smaller preview image */
+      .preview img { border-radius:14px; border:1px solid #E6EEF0; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -235,30 +258,51 @@ def show_classifier():
 
     idx         = int(prob.argmax())
     class_name  = classes[idx]
-    nice_name   = pretty_label(class_name)             # ✅ human-friendly label
+    nice_name   = pretty_label(class_name)     
     confidence  = float(prob[idx])
     description = LABEL_DESCRIPTIONS.get(class_name, "No description available.")
 
     # Prediction card
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    col1, col2 = st.columns([1,1])
-    with col1:
-        st.image(image, caption="Uploaded image", width=280)   # ✅ smaller image
-    with col2:
-        st.subheader("Prediction")
-        m1, m2 = st.columns(2)
-        with m1: st.metric("Label", nice_name)
-        with m2: st.metric("Confidence", f"{confidence*100:.2f}%")
-        st.progress(confidence)
-        st.write(description)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
 
-    # Go Back button AFTER prediction (per your request)
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    if st.button("Go Back to Home"):
-        st.session_state.page = "Home"
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    left, right = st.columns([1, 1])
+    with left:
+        st.markdown("<div class='preview'>", unsafe_allow_html=True)
+        st.image(image, caption="Uploaded image", width=280)  # smaller, neat border via CSS
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with right:
+        st.markdown("<h3 class='pred-title'>Prediction</h3>", unsafe_allow_html=True)
+
+    # Metric chips
+    st.markdown(
+        f"""
+        <div class="metric-wrap">
+          <div class="metric">
+            <p class="k">Label</p>
+            <p class="v">{nice_name}</p>
+          </div>
+          <div class="metric">
+            <p class="k">Confidence</p>
+            <p class="v">{confidence*100:.2f}%</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Slim confidence bar
+    st.markdown(
+        f"""
+        <div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Short description
+    st.write(description)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 def show_patient_info():
