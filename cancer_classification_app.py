@@ -265,45 +265,46 @@ def show_classifier():
     # Prediction card
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
 
-    left, right = st.columns([1, 1])
+    left, right = st.columns([1, 1.15])   # give the text a touch more room
+
     with left:
         st.markdown("<div class='preview'>", unsafe_allow_html=True)
-        st.image(image, caption="Uploaded image", width=280)  # smaller, neat border via CSS
+        st.image(image, caption="Uploaded image", width=280)
         st.markdown("</div>", unsafe_allow_html=True)
 
     with right:
-        st.markdown("<h3 class='pred-title'>Prediction</h3>", unsafe_allow_html=True)
+        # Title (left-aligned inside the right column)
+        st.markdown("<h3 class='pred-title' style='text-align:left'>Prediction</h3>",
+                    unsafe_allow_html=True)
 
-    # Metric chips
-    st.markdown(
-        f"""
-        <div class="metric-wrap">
-          <div class="metric">
-            <p class="k">Label</p>
-            <p class="v">{nice_name}</p>
-          </div>
-          <div class="metric">
-            <p class="k">Confidence</p>
-            <p class="v">{confidence*100:.2f}%</p>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        # Metric chips (KEEP this inside `with right:`)
+        st.markdown(
+            f"""
+            <div class="metric-wrap">
+              <div class="metric">
+                <p class="k">Label</p>
+                <p class="v">{nice_name}</p>
+              </div>
+              <div class="metric">
+                <p class="k">Confidence</p>
+                <p class="v">{confidence*100:.2f}%</p>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    # Slim confidence bar
-    st.markdown(
-        f"""
-        <div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>
-        """,
-        unsafe_allow_html=True,
-    )
+        # Slim confidence bar (also inside right col)
+        st.markdown(
+            f"""<div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>""",
+            unsafe_allow_html=True,
+        )
 
-    # Short description
-    st.write(description)
+        # Short description
+        st.write(description)
 
-st.markdown("</div>", unsafe_allow_html=True)
-
+    # close the card after BOTH columns
+    st.markdown("</div>", unsafe_allow_html=True)
 
 def show_patient_info():
     st.markdown("<div class='card'><b>Patient Info</b><br/>Coming soon.</div>", unsafe_allow_html=True)
