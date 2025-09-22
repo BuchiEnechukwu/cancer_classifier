@@ -1,0 +1,21 @@
+# Ignore data and training runs
+train/
+val/
+test/
+
+# ignore everything in runs except model and label map
+runs/*
+!runs/cancer_classifier_model.keras
+!runs/label_encoder.pkl
+
+# Ignore Streamlit config
+.streamlit/
+
+# Python cache
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editor
+.DS_Store
+.vscode/
