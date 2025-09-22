@@ -173,7 +173,7 @@ else:
 #  Router 
 def show_home():
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("🚀 Ready to explore?")
+    st.subheader("Choose Action")
     dest = st.selectbox("Choose where to go:", ["Classifier", "Patient Info"])
     if st.button("Go"):
         st.session_state.page = dest
@@ -181,10 +181,10 @@ def show_home():
     st.markdown("</div>", unsafe_allow_html=True)
 
 def show_classifier():
-    # Header (like your reference)
+    # Header
     c_h1, c_h2, c_h3 = st.columns([1,2,1])
     with c_h2:
-        st.markdown("<h2 style='text-align:center'>📤 Upload Medical Image</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center'>Upload Medical Image</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align:center; color:#64748B'>Upload a medical image</p>", unsafe_allow_html=True)
 
     # Uploader card
@@ -193,7 +193,8 @@ def show_classifier():
         "Upload a medical image",
         type=["jpg","jpeg","png","bmp","tif","tiff","webp"],
         accept_multiple_files=False,
-        help="Limit 200MB per file • JPG, JPEG, PNG, BMP, TIF, TIFF, WEBP"
+        help="Limit 200MB per file • JPG, JPEG, PNG, BMP, TIF, TIFF, WEBP",
+        label_visibility="collapsed" 
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
