@@ -299,7 +299,13 @@ def show_classifier():
             f"""<div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>""",
             unsafe_allow_html=True,
         )
-
+        # Go Back button (centered)
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
+            if st.button("Go Back to Home", use_container_width=True):
+                st.session_state.page = "Home"
+                st.rerun()
+                
         # Short description
         st.write(description)
 
