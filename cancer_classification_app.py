@@ -3,6 +3,7 @@ import os
 import io
 import base64
 import numpy as np
+import pandas as pd
 import streamlit as st
 from pathlib import Path
 from PIL import Image
@@ -11,10 +12,13 @@ import tensorflow as tf
 from tensorflow import keras
 
 # Debugging
-st.caption(f"TF: {tf.__version__} | NumPy: {np.__version__}")
+#st.caption(f"TF: {tf.__version__} | NumPy: {np.__version__}")
 
 # Page config
 st.set_page_config(page_title="Welcome to OncoData", layout="wide")
+
+# App title
+st.title("Welcome to OncoData")
 
 # inject CSS
 def inject_css():
@@ -106,9 +110,9 @@ with st.sidebar:
     if "page" not in st.session_state:
         st.session_state.page = "Home"
 
-    st.button("🏠  Home", key="nav_home", on_click=lambda: st.session_state.update(page="Home"))
-    st.button("🧪  Classifier", key="nav_cls", on_click=lambda: st.session_state.update(page="Classifier"))
-    st.button("👤  Patient Info", key="nav_pt", on_click=lambda: st.session_state.update(page="Patient Info"))
+    st.button("Home", key="nav_home", on_click=lambda: st.session_state.update(page="Home"))
+    st.button("Classifier", key="nav_cls", on_click=lambda: st.session_state.update(page="Classifier"))
+    st.button("Patient Info", key="nav_pt", on_click=lambda: st.session_state.update(page="Patient Info"))
 
 #  Header
 if Path("assets/logo.png").exists():
@@ -166,7 +170,7 @@ def show_classifier():
 
     # Back-to-home card
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    if st.button("⬅️  Go Back to Home"):
+    if st.button("Go Back to Home"):
         st.session_state.page = "Home"
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
@@ -220,10 +224,18 @@ def show_classifier():
     # Probabilities card (sorted)
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("Class probabilities")
+
     order = np.argsort(prob)[::-1]
     ordered_probs = prob[order]
     ordered_classes = [classes[i] for i in order]
-    st.bar_chart({"probability": ordered_probs}, x=ordered_classes)
+
+    df_probs = pd.DataFrame({
+        "class": ordered_classes,
+        "probability": ordered_probs.astype(float)
+    })
+
+    st.bar_chart(df_probs, x="class", y="probability", use_container_width=True)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Footer
