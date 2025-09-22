@@ -299,13 +299,12 @@ def show_classifier():
             f"""<div class="conf-bar"><span style="width:{confidence*100:.2f}%"></span></div>""",
             unsafe_allow_html=True,
         )
-        # Go Back button (centered)
+
+        # Go Back button AFTER prediction (per your request)
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        center = st.columns([1, 1, 1])[1]
-        with center:
-            if st.button("Go Back to Home", use_container_width=True):
-                st.session_state.page = "Home"
-                st.rerun()
+        if st.button("Go Back to Home"):
+            st.session_state.page = "Home"
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
         # Short description
