@@ -84,6 +84,40 @@ LABEL_DESCRIPTIONS = {
     "oral_scc": "Oral Squamous Cell Carcinoma"
 }
 
+# Human-friendly display names for your classes
+DISPLAY_OVERRIDES = {
+    "all_benign": "ALL Benign",
+    "all_early": "ALL Early",
+    "all_pre": "ALL Pre-B",
+    "all_pro": "ALL Pro-B",
+    "brain_glioma": "Brain Glioma",
+    "brain_menin": "Brain Meningioma",
+    "brain_tumor": "Brain Tumor",
+    "breast_benign": "Breast Benign",
+    "breast_malignant": "Breast Malignant",
+    "cervix_dyk": "Cervix Dyskeratotic",
+    "cervix_koc": "Cervix Koilocytotic",
+    "cervix_mep": "Cervix Metaplastic",
+    "cervix_pab": "Cervix Parabasal",
+    "cervix_sfi": "Cervix Superficial",
+    "colon_aca": "Colon Adenocarcinoma",
+    "colon_bnt": "Colon Benign Tissue",
+    "kidney_normal": "Kidney Normal",
+    "kidney_tumor": "Kidney Tumor",
+    "lung_aca": "Lung Adenocarcinoma",
+    "lung_bnt": "Lung Benign Tissue",
+    "lung_scc": "Lung Squamous Cell Carcinoma",
+    "lymph_cll": "Lymph CLL",
+    "lymph_fl": "Lymph Follicular Lymphoma",
+    "lymph_mcl": "Lymph Mantle Cell Lymphoma",
+    "oral_normal": "Oral Normal",
+    "oral_scc": "Oral Squamous Cell Carcinoma",
+}
+
+def pretty_label(name: str) -> str:
+    # Use overrides where provided; otherwise convert snake_case -> Title Case
+    return DISPLAY_OVERRIDES.get(name, name.replace("_", " ").title())
+
 #  Cached loaders 
 @st.cache_resource(show_spinner=False)
 def load_model(path: str):
@@ -121,7 +155,7 @@ if Path("assets/logo.png").exists():
         <div style="text-align:center; margin-top:0; margin-bottom:1.5rem">
             <img src="data:image/png;base64,{base64.b64encode(open('assets/logo.png','rb').read()).decode()}"
                  style="width:200px; margin-bottom:0.8rem"/>
-            <h1 style="margin:0; font-size:2.4rem; font-weight:700; color:#0F172A">OncoData</h1>
+            <h1 style="margin:0; font-size:2.4rem; font-weight:700; color:#0F172A">Welcome to OncoData</h1>
             <p style="margin:0; color:#475569">AI-Powered Cancer Image Classification</p>
             <p style="margin:0; color:#64748B; font-size:0.95rem">Upload medical images and analyse cancer types</p>
         </div>
@@ -168,22 +202,16 @@ def show_classifier():
 
     st.markdown("<hr />", unsafe_allow_html=True)
 
+    if not uploaded_file:
+        st.info("Please upload a medical image to run the classifier.")
+        return
+
     # Back-to-home card
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     if st.button("Go Back to Home"):
         st.session_state.page = "Home"
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-
-    # If nothing uploaded yet, show footer + stop
-    if not uploaded_file:
-        st.markdown(
-            "<div style='text-align:center; color:#6B7280; font-size:13px; margin-top:40px'>"
-            "© 2025 OncoData • Providing cutting-edge technology for health improvement"
-            "</div>",
-            unsafe_allow_html=True
-        )
-        return
 
     # Check model files
     if not os.path.isfile(MODEL_PATH):
@@ -214,37 +242,13 @@ def show_classifier():
         st.image(image, caption="Uploaded image", use_container_width=True)
     with col2:
         st.subheader("Prediction")
+        nice_name = pretty_label(class_name)  # <-- use pretty display name
         m1, m2 = st.columns(2)
-        with m1: st.metric("Label", class_name)
+        with m1: st.metric("Label", nice_name)
         with m2: st.metric("Confidence", f"{confidence*100:.2f}%")
         st.progress(confidence)
         st.write(description)
     st.markdown("</div>", unsafe_allow_html=True)
-
-    # Probabilities card (sorted)
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("Class probabilities")
-
-    order = np.argsort(prob)[::-1]
-    ordered_probs = prob[order]
-    ordered_classes = [classes[i] for i in order]
-
-    df_probs = pd.DataFrame({
-        "class": ordered_classes,
-        "probability": ordered_probs.astype(float)
-    })
-
-    st.bar_chart(df_probs, x="class", y="probability", use_container_width=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Footer
-    st.markdown(
-        "<div style='text-align:center; color:#6B7280; font-size:13px; margin-top:8px'>"
-        "© 2025 OncoData • Empowering medical diagnostics through intelligent technology"
-        "</div>",
-        unsafe_allow_html=True
-    )
 
 def show_patient_info():
     st.markdown("<div class='card'><b>Patient Info</b><br/>Coming soon.</div>", unsafe_allow_html=True)
@@ -259,3 +263,10 @@ elif page == "Patient Info":
     show_patient_info()
 else:
     show_home()
+# Universal footer
+st.markdown(
+    "<div style='text-align:center; color:#6B7280; font-size:13px; margin-top:40px'>"
+    "© 2025 OncoData • Empowering medical diagnostics through intelligent technology"
+    "</div>",
+    unsafe_allow_html=True
+)   
